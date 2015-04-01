@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="30dp" >
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        
+        android:padding="15dp"
+        android:text="TextView"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/spotMe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#003366"
+        android:text="Spot Yourself"
+        android:textColor="#FF33CC" />
+
+    <Button
+        android:id="@+id/spotFriend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:background="#003366"
+        android:text="Spot your friend"
+        android:textColor="#FF33CC" />
+
+    <AutoCompleteTextView
+        android:id="@+id/autocomplete_places"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:layout_marginTop="50dp"
+        android:hint="Enter the Location Of the friend"
+        android:textColor="@android:color/primary_text_light" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/GoogleMaps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#020090"
+            android:text="Google Maps"
+            android:textColor="@android:color/white"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/Share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:background="#020090"
+            android:text="Share"
+            android:textColor="@android:color/white"
+            android:visibility="invisible" />
+
+    </LinearLayout>
+
+</LinearLayout>
