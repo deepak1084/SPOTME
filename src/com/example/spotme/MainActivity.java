@@ -6,8 +6,11 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -21,6 +24,8 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,6 +37,7 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,26 +54,49 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 public class MainActivity extends Activity implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks  {
-	private Button spotme = null ;
-	private Button share = null;
-	private Button spotFriend;
-	private TextView e = null;
-	private AutoCompleteTextView mAutocompleteView;
-	private Button GoogleMap;
+
+
 	private static final String CARD_INTRO = "INTRO";
 	private static final String CARD_PICKER = "PICKER";
 	private static final String CARD_DETAIL = "DETAIL";
+	private String placeData =null;
+	public String getPlaceData() {
+		return placeData;
+	}
+
+
+	public void setPlaceData(String placeData) {
+		this.placeData = placeData;
+	}
+
+	private String url =null;
+	static String TAG = "LOCATIFY";
+
+	private TextView locationData = null;
 
 	private static final int ACTION_PICK_PLACE = 1;
+
+	private Bitmap imageData = null;
+
+	public Bitmap getImageData() {
+		return imageData;
+	}
+
+
+	public void setImageData(Bitmap imageData) {
+		this.imageData = imageData;
+	}
+
+	private Button spotMe = null ;
+	private Button shareLocation = null;
+	private Button spotFriend = null;
+	private Button GoogleMap = null;
+	private ImageView image = null;
+	private AutoCompleteTextView mAutocompleteView;
 
 	protected GoogleApiClient mGoogleApiClient;
 
 	private PlaceAutocompleteAdapter mAdapter;
-
-	private String Placedata =null;
-	private String url =null;
-
-	static String TAG = "Deepak";
 
 	private static final LatLngBounds BOUNDS_INDIA = new LatLngBounds(
 			new LatLng(10.204492,77.707691), new LatLng(13.204492,79.707691));
@@ -85,14 +114,18 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
 		setContentView(R.layout.home);
 
 		Intent intent = getIntent();
+
 		if(intent.getDataString()!=null) {
 			handleExtraData(intent.getDataString());
 		}
-		spotme = (Button) findViewById(R.id.spotMe);
+
+		spotMe = (Button) findViewById(R.id.spotMe);
 		spotFriend = (Button)findViewById(R.id.spotFriend);
-		e= (TextView) findViewById(R.id.data);
-		share = (Button) findViewById(R.id.Share);
+		locationData= (TextView) findViewById(R.id.data);
+		shareLocation = (Button) findViewById(R.id.Share);
 		GoogleMap = (Button) findViewById(R.id.GoogleMaps);
+		image = (ImageView) findViewById(R.id.imageData);
+
 		if (mGoogleApiClient == null) {
 			rebuildGoogleApiClient();
 			mGoogleApiClient.connect();
@@ -117,26 +150,19 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
 
 		// Set up the 'clear text' button that clears the text in the autocomplete view
 
-		share.setOnClickListener(new OnClickListener() {
-
+		shareLocation.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				Intent sendIntent = new Intent();
 				sendIntent.setAction(Intent.ACTION_SEND);
-
-				sendIntent.putExtra(Intent.EXTRA_TEXT, Placedata+"\n"+url );
-
+				sendIntent.putExtra(Intent.EXTRA_TEXT, placeData+"\n"+url );
 				sendIntent.setType("text/plain");
 				startActivity(sendIntent);
-
-
-
 			}
 		});
 
 		GoogleMap.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
@@ -147,8 +173,7 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
 			}
 		});
 
-		spotme.setOnClickListener(new OnClickListener() {
-
+		spotMe.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
@@ -166,8 +191,6 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
-
 			}
 		});         // Start the Intent by requesting a result, identified by a request code.
 
@@ -185,19 +208,12 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
 			final PlaceAutocompleteAdapter.PlaceAutocomplete item = mAdapter.getItem(position);
 			final String placeId = String.valueOf(item.placeId);
 
-			//			String response= 	makeCall("https://maps.googleapis.com/maps/api/place/details/json?placeid=ChIJya6wlB9xdDkR5rJKQ3WHE84&key=AIzaSyD1Jfyx-9MZ5SUXdOeDe9e8sg9HeLKuD44");
 			String callurl = "https://maps.googleapis.com/maps/api/place/details/json?placeid="+placeId+"&key=AIzaSyD1Jfyx-9MZ5SUXdOeDe9e8sg9HeLKuD44";
 			new APICALL(callurl).execute();
 			Log.i(TAG, "Autocomplete item selected: " + item.description);
-
-
 			Log.i(TAG, "Called getPlaceById to get Place details for " + item.placeId);
 		}
 	};
-
-
-
-
 
 	/**
 	 * Callback for results from a Places Geo Data API query that shows the first place result in
@@ -215,11 +231,6 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
 			}
 			// Get the Place object from the buffer.
 			final Place place = places.get(0);
-
-			// Format details of the place for display and show it in a TextView.
-			//     mPlaceDetailsText.setText(formatPlaceDetails(getResources(), place.getName(),
-			//             place.getId(), place.getAddress(), place.getPhoneNumber(),
-			//             place.getWebsiteUri()));
 
 			Log.i(TAG, "Place details received: " + place.getName());
 		}
@@ -315,15 +326,20 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
 				if(attribution == null){
 					attribution = "";
 				}
+
+				new imaageDownload(placeId).execute();
+
 				url = "http://maps.google.com/maps?q=loc:" + place.getLatLng().latitude + "," +place.getLatLng().longitude ;
-				Placedata  = name + " "+address+ " "+phone+" \n ";
-				e.setText(Placedata);
-				e.setVisibility(View.VISIBLE);
-				spotme.setVisibility(View.INVISIBLE);
+				placeData  = name + " "+address+ " "+phone+" \n ";
+				locationData.setText(placeData);
+				locationData.setVisibility(View.VISIBLE);
+				
+				spotMe.setVisibility(View.INVISIBLE);
 				spotFriend.setVisibility(View.INVISIBLE);
 				mAutocompleteView.setVisibility(View.INVISIBLE);
-				share.setVisibility(View.VISIBLE);
+				shareLocation.setVisibility(View.VISIBLE);
 				GoogleMap.setVisibility(View.VISIBLE);
+				image.setVisibility(View.VISIBLE);
 				// Update data on card.
 
 			}
@@ -332,11 +348,24 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
 
 	public void handleExtraData (String data) {
 		Log.i(TAG,data);
+		String longi,lati;
+		int i;
+		longi = ""+data.charAt(34);
+		for( i=35;data.charAt(i)!= ',';i++) { 
+			longi+=data.charAt(i);
+		}
+		i++;
+		lati = ""+data.charAt(i);
+		i++;
+		for(;i<data.length();i++) {
+			lati+=data.charAt(i);
+		}
+		Log.i(TAG,"longi"+longi+" "+lati);
+		openIntentByLatlng(lati, longi);
 	}
-	
+
 	public void openIntentByLatlng (String longi,String lati) {
 		Double lo,la;
-
 		la= Double.parseDouble(lati);
 		lo=Double.parseDouble(longi);
 
@@ -359,7 +388,7 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
 			e.printStackTrace();
 		}
 	}
-	
+
 
 	public class APICALL extends AsyncTask<Void, Void, Void>{
 		String url= null;
@@ -409,7 +438,6 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
 			try {
 				JSONObject jsonObject = new JSONObject(response);
 				Log.i("Deepak",jsonObject.toString());
-				Log.i("Deepak","Arrived here");
 
 				JSONObject ob = jsonObject.getJSONObject("result").getJSONObject("geometry");
 
@@ -421,7 +449,91 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
 				e.printStackTrace();
 			}
 		}
+	}
 
+	public class imaageDownload extends AsyncTask<Void, Void, Void> {
+		String placeId;
+		String response;
+		public imaageDownload(String placeId) {
+			this.placeId = placeId;
+		}
+		@Override
+		protected Void doInBackground(Void... params) {
+			String url  = "https://maps.googleapis.com/maps/api/place/details/json?placeid="+placeId+"&key=AIzaSyD1Jfyx-9MZ5SUXdOeDe9e8sg9HeLKuD44";
+			StringBuffer buffer_string = new StringBuffer(url);
+			String replyString = "";
+			
+			// instanciate an HttpClient
+			HttpClient httpclient = new DefaultHttpClient();
+			// instanciate an HttpGet
+			HttpGet httpget = new HttpGet(buffer_string.toString());
+
+			try {
+				// get the responce of the httpclient execution of the url
+				HttpResponse response = httpclient.execute(httpget);
+				InputStream is = response.getEntity().getContent();
+
+				// buffer input stream the result
+				BufferedInputStream bis = new BufferedInputStream(is);
+				ByteArrayBuffer baf = new ByteArrayBuffer(20);
+				int current = 0;
+				while ((current = bis.read()) != -1) {
+					baf.append((byte) current);
+				}
+				// the result as a string is ready for parsing
+				replyString = new String(baf.toByteArray());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			response = replyString.trim();
+
+			String picreference=null;
+			try {
+				JSONObject json = new JSONObject(response);
+				String jsonA = json.getString("result");
+				
+				JSONObject temm= new JSONObject(jsonA);
+				if(temm.has("photos")) {
+				JSONArray picarray = temm.getJSONArray("photos");
+				
+				
+				for(int i=0;i<picarray.length() && i<=1;i++) {
+				picreference = (picarray.getJSONObject(i).getString("photo_reference"));	
+				}
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(picreference == null ) {
+				imageData=null;
+				return null;
+			}
+			Log.i(TAG,picreference);
+			URL sURL;
+			try {
+				String picimageUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference="+picreference+"&key=AIzaSyD1Jfyx-9MZ5SUXdOeDe9e8sg9HeLKuD44";
+				sURL = new URL(picimageUrl);
+				HttpURLConnection conn = (HttpURLConnection) sURL.openConnection();
+				imageData = BitmapFactory.decodeStream(conn.getInputStream());
+				if(imageData==null) {
+					Log.i(TAG,"IMAGE data is null");
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			return null;
+		}
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			/*Image Styling here */
+			image.setImageBitmap(imageData);
+		}
 
 	}
 
