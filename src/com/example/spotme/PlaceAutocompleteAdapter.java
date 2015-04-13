@@ -210,7 +210,7 @@ public class PlaceAutocompleteAdapter
             // AutocompletePrediction objects encapsulate the API response (place ID and description).
 
             Iterator<AutocompletePrediction> iterator = autocompletePredictions.iterator();
-            ArrayList resultList = new ArrayList<>(autocompletePredictions.getCount());
+            ArrayList resultList = new ArrayList<AutocompletePrediction>(autocompletePredictions.getCount());
             while (iterator.hasNext()) {
                 AutocompletePrediction prediction = iterator.next();
                 // Get the details of this prediction and copy it into a new PlaceAutocomplete object.
