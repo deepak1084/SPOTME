@@ -3,6 +3,7 @@ package com.example.spotme.com.example.ui;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,6 +11,9 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import com.example.spotme.R;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.ui.PlacePicker;
 
 /**
  * Created by Luffy on 4/13/2015.
@@ -66,7 +70,16 @@ public class HomeScreen extends Activity
     @OnClick(R.id.up)
     public void onClickUp()
     {
-        // Implement this
+        PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
+        Intent intent;
+        try {
+            intent = intentBuilder.build(getApplicationContext());
+            startActivityForResult(intent, 1);
+        } catch (GooglePlayServicesRepairableException e) {
+            e.printStackTrace();
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
     }
 
     @OnClick(R.id.down)

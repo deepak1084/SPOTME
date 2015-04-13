@@ -219,8 +219,7 @@ public class MainActivity extends Activity implements GoogleApiClient.OnConnecti
 	 * Callback for results from a Places Geo Data API query that shows the first place result in
 	 * the details view on screen.
 	 */
-	private ResultCallback<PlaceBuffer> mUpdatePlaceDetailsCallback
-	= new ResultCallback<PlaceBuffer>() {
+	private ResultCallback<PlaceBuffer> mUpdatePlaceDetailsCallback = new ResultCallback<PlaceBuffer>() {
 		@Override
 		public void onResult(PlaceBuffer places) {
 			if (!places.getStatus().isSuccess()) {
